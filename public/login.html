@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prijava | DIVLJINA 🕹️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-yellow: #eaff00;
+            --bg-dark: #070709;
+        }
+
+        body { 
+            background-color: var(--bg-dark); 
+            color: white; 
+            margin: 0; 
+            font-family: 'Audiowide', sans-serif; 
+            height: 100vh; 
+            overflow: hidden; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- POZADINA KAO NA REGISTRACIJI --- */
+        .main-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            align-items: center;
+            position: relative;
+        }
+
+        .section-video {
+            width: 50%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: radial-gradient(circle at center, rgba(234, 255, 0, 0.02) 0%, transparent 70%);
+        }
+
+        #login-video {
+            height: 80%;
+            width: auto;
+            max-width: 90%;
+            mask-image: radial-gradient(circle, black 30%, transparent 80%);
+            -webkit-mask-image: radial-gradient(circle, black 30%, transparent 80%);
+            filter: brightness(0.8) contrast(1.2);
+            object-fit: contain;
+        }
+
+        .section-form {
+            width: 50%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.01);
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
+        }
+
+        .login-box {
+            width: 80%;
+            max-width: 360px;
+            text-align: center;
+            animation: fadeIn 1s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            letter-spacing: 12px;
+            margin-bottom: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: var(--neon-yellow);
+            font-size: 10px;
+            letter-spacing: 4px;
+            margin-bottom: 40px;
+            opacity: 0.8;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .log-input { 
+            width: 100%; 
+            padding: 15px 10px; 
+            background: rgba(255, 255, 255, 0.03); 
+            color: white; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 4px;
+            box-sizing: border-box; 
+            font-family: 'Audiowide';
+            outline: none;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .log-input:focus {
+            border-color: var(--neon-yellow);
+            background: rgba(255, 255, 255, 0.07);
+            box-shadow: 0 0 15px rgba(234, 255, 0, 0.1);
+        }
+
+        .btn-login { 
+            width: 100%; 
+            background: white; 
+            color: black; 
+            border: none; 
+            padding: 18px; 
+            font-family: 'Audiowide'; 
+            font-weight: 900; 
+            cursor: pointer; 
+            transition: 0.4s;
+            margin-top: 20px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            border-radius: 4px;
+        }
+
+        .btn-login:hover { 
+            background: var(--neon-yellow); 
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(234, 255, 0, 0.4);
+        }
+
+        .footer-links {
+            margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .secondary-link {
+            color: rgba(255, 255, 255, 0.3);
+            text-decoration: none;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .secondary-link:hover {
+            color: var(--neon-yellow);
+        }
+
+        .close-btn { 
+            position: fixed; 
+            top: 40px; 
+            right: 50px; 
+            font-size: 24px; 
+            color: white; 
+            text-decoration: none; 
+            opacity: 0.3; 
+            transition: 0.3s; 
+            z-index: 100;
+        }
+
+        .close-btn:hover { opacity: 1; transform: rotate(90deg); }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .section-video { display: none; }
+            .section-form { width: 100%; border: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="close-btn">✕</a>
+
+    <div class="main-container">
+        <div class="section-video">
+            <video id="login-video" autoplay muted playsinline loop>
+                <source src="reg/dart.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="section-form">
+            <div class="login-box">
+                <h2>ULAZ</h2>
+                <div class="subtitle">AUTHORIZED PERSONNEL ONLY</div>
+                
+                <form id="loginForm">
+                    <div class="input-group">
+                        <input type="text" id="username" class="log-input" placeholder="USERNAME" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <input type="password" id="password" class="log-input" placeholder="PASSWORD" required>
+                    </div>
+                    
+                    <button type="submit" class="btn-login">PRISTUPI SISTEMU</button>
+                </form>
+
+                <div class="footer-links">
+                    <a href="register.html" class="secondary-link">KREIRAJ NOVI IDENTITET</a>
+                    <a href="#" class="secondary-link">RESTORE ACCESS (ZABORAVLJENA ŠIFRA)</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('user', JSON.stringify(data.podaci));
+                    window.location.href = "dashboard.html"; 
+                } else {
+                    if (response.status === 403) {
+                        alert("⛔ PRISTUP ODBIJEN: Moraš potvrditi svoj nalog putem emaila pre prijave!");
+                    } else {
+                        alert("❌ GREŠKA: " + data.poruka);
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                alert("⚠️ Server nije dostupan. Proveri da li je pokrenut node server.js");
+            }
+        });
+    </script>
+</body>
+</html>

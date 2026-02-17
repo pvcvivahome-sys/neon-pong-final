@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEON | Politika Privatnosti</title>
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff00ff;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* --- BACKGROUND ISTI KAO NA POCETNOJ --- */
+        #bg-video-main {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            filter: brightness(0.2) blur(5px);
+        }
+
+        /* --- NAVIGACIJA --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 60px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-container { display: flex; align-items: center; gap: 15px; cursor: pointer; text-decoration: none; color: #fff; }
+        .logo-img { width: 35px; height: 35px; border-radius: 5px; border: 1px solid var(--neon-blue); }
+        .logo-text { font-family: 'Audiowide'; font-size: 20px; letter-spacing: 3px; }
+
+        /* --- SADRŽAJ --- */
+        .container {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 40px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+        }
+
+        h1 {
+            font-family: 'Audiowide';
+            color: var(--neon-blue);
+            text-shadow: 0 0 15px var(--neon-blue);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            font-family: 'Audiowide';
+            color: var(--neon-pink);
+            font-size: 18px;
+            margin-top: 30px;
+            border-left: 3px solid var(--neon-pink);
+            padding-left: 15px;
+        }
+
+        p {
+            font-size: 15px;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        .highlight { color: var(--neon-blue); font-weight: bold; }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            color: #fff;
+            text-decoration: none;
+            font-family: 'Audiowide';
+            font-size: 12px;
+            transition: 0.3s;
+        }
+        .back-btn:hover { color: var(--neon-blue); }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            font-size: 10px;
+            opacity: 0.5;
+            font-family: 'Audiowide';
+        }
+    </style>
+</head>
+<body>
+
+    <video autoplay muted loop playsinline id="bg-video-main">
+        <source src="pocetna/pozadina11.mp4" type="video/mp4">
+    </video>
+
+    <nav>
+        <a href="index.html" class="logo-container">
+            <img src="pocetna/neon.jpg" alt="Logo" class="logo-img">
+            <div class="logo-text">NEON</div>
+        </a>
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> NAZAD NA ARENU</a>
+    </nav>
+
+    <div class="container">
+        <h1>POLITIKA PRIVATNOSTI</h1>
+        
+        <p>Dobrodošli u <span class="highlight">NEON</span> arenu. Vaša privatnost nam je prioritet isto koliko i fer-plej u našim igrama. Ovaj dokument objašnjava kako prikupljamo i štitimo vaše podatke.</p>
+
+        <h2>1. PRIKUPLJANJE PODATAKA</h2>
+        <p>Prilikom kreiranja naloga, prikupljamo vaše korisničko ime i email adresu. Ovi podaci se koriste isključivo za identifikaciju vašeg "skill" profila i sigurnost vaših transakcija unutar sistema.</p>
+
+        <h2>2. SIGURNOST SIGNALA</h2>
+        <p>Svi podaci koji prolaze kroz NEON servere su enkriptovani. Koristimo napredne protokole kako bismo osigurali da vaši rezultati i turnirske aktivnosti ostanu zaštićeni od neovlašćenog pristupa.</p>
+
+        <h2>3. KOLAČIĆI (COOKIES)</h2>
+        <p>NEON koristi minimalne kolačiće kako bi sistem zapamtio vašu sesiju. Bez njih, morali biste da se prijavljujete svakih 5 minuta, što bi ubilo gaming iskustvo.</p>
+
+        <h2>4. VAŠA PRAVA</h2>
+        <p>U svakom trenutku možete zatražiti trajno brisanje vašeg naloga i svih povezanih podataka slanjem signala našem timu za podršku putem kontakt forme na početnoj strani.</p>
+
+        <h2>5. IZMENE</h2>
+        <p>Zadržavamo pravo da ažuriramo ovu politiku kako se NEON ekosistem razvija. Nastavak korišćenja platforme nakon izmena smatra se prihvatanjem novih protokola.</p>
+    </div>
+
+    <footer>
+        v2.0.26 // SECURITY PROTOCOL ACTIVE // &copy; 2026 NEON BALKAN
+    </footer>
+
+</body>
+</html>

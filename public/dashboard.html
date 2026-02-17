@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Neon Casino 🕹️</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { 
+            background-color: #070709; 
+            color: white; 
+            margin: 0; 
+            font-family: 'Audiowide', sans-serif; 
+            display: flex; 
+            overflow: hidden; 
+            height: 100vh;
+        }
+
+        /* --- SIDEBAR --- */
+        #sidebar {
+            width: 280px;
+            height: 100vh;
+            background: #000;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .neon-logo {
+            font-family: 'Audiowide', sans-serif;
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;
+        }
+
+        .nav-card {
+            background: rgba(255, 215, 0, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            border-radius: 15px;
+            padding: 30px 10px;
+            margin: 20px 15px;
+            text-align: center;
+        }
+
+        .avatar-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+        }
+
+        #user-photo {
+            width: 100%; height: 100%; border-radius: 50%;
+            object-fit: cover; border: 2px solid #ffd700; background: #111;
+        }
+
+        .upload-icon {
+            position: absolute; bottom: 0; right: 0;
+            background: #ffd700; color: #000; width: 25px; height: 25px;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 12px; cursor: pointer; border: 2px solid #000;
+        }
+
+        .nav-username { font-size: 24px; color: #fff; margin-bottom: 8px; }
+        .nav-balans { font-size: 26px; color: #ffd700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+
+        .nav-middle {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; width: 100%;
+        }
+
+        .nav-item {
+            display: flex; align-items: center; justify-content: center;
+            gap: 12px; padding: 15px 0; color: rgba(255,255,255,0.7);
+            text-decoration: none; font-size: 14px; transition: 0.3s;
+            cursor: pointer; border-radius: 8px; width: 85%; margin-bottom: 5px;
+        }
+
+        .nav-item:hover { background: rgba(255, 215, 0, 0.1); color: #ffd700; }
+
+        /* --- CENTRALNI DEO --- */
+        #glavni-ekran-kontejner {
+            flex: 1; display: flex; height: 100vh; overflow: hidden;
+        }
+
+        #sredina-sadrzaj {
+            flex: 1; padding: 40px; display: flex; flex-direction: column; gap: 20px;
+        }
+
+        .main-container { display: flex; gap: 20px; flex: 1; }
+        .panel { border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; display: flex; flex-direction: column; position: relative; background: #111; }
+
+        /* --- DESNA LISTA --- */
+        #prozor-prijatelji {
+            width: 280px; height: 100vh; flex-shrink: 0;
+            position: relative; background: url('dashboard/logpozadina4.jpg') center/cover no-repeat;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .desni-overlay {
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.75); z-index: 1;
+        }
+
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.05) !important; color: white !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important; padding: 8px 15px !important;
+            font-size: 11px !important; cursor: pointer; font-family: 'Audiowide'; transition: 0.3s;
+        }
+        .btn-glass:hover { background: rgba(255, 215, 0, 0.2) !important; border-color: #ffd700 !important; }
+
+        input[type="file"] { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <div style="padding: 40px 0; text-align: center;">
+            <a href="#" onclick="location.reload()" class="neon-logo" style="font-size: 24px;">
+                <span style="color: #ffd700;">NEON</span>
+            </a>
+        </div>
+
+        <div class="nav-card">
+            <div class="avatar-container">
+                <img id="user-photo" src="https://via.placeholder.com/80" alt="Profilna">
+                <label for="imageUpload" class="upload-icon"><i class="fas fa-camera"></i></label>
+                <input type="file" id="imageUpload" accept="image/*" onchange="uploadSliku(event)">
+            </div>
+            <div id="display-username" class="nav-username">GUEST</div>
+            <div id="display-balans" class="nav-balans">0.00 💰</div>
+        </div>
+
+        <div class="nav-middle">
+            <div class="nav-item" onclick="location.reload()"><i class="fas fa-gamepad"></i> SVE IGRE</div>
+            <div class="nav-item" onclick="alert('Uskoro!')"><i class="fas fa-trophy"></i> RANG LISTA</div>
+            <div class="nav-item" onclick="alert('Uskoro!')"><i class="fas fa-shopping-cart"></i> PRODAVNICA</div>
+        </div>
+
+        <div style="padding-bottom: 20px;">
+            <div class="nav-item" style="margin: 0 auto; color: #ff4d4d;" onclick="odjaviSe()">
+                <i class="fas fa-sign-out-alt"></i> ODJAVI SE
+            </div>
+        </div>
+    </div>
+
+    <div id="glavni-ekran-kontejner">
+        <div id="sredina-sadrzaj">
+            <div class="main-container">
+                
+                <div id="prozorigre" class="panel" style="flex: 1; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('dashboard/logpozadina2.jpg') center/cover;">
+                    <div style="padding: 20px; background: rgba(0,0,0,0.8); border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center;">🕹️ KATEGORIJE</div>
+                    <div style="flex: 1; display: flex; flex-direction: column;">
+                        <button onclick="prikaziSkillListu()" class="btn-glass" style="flex: 1; font-size: 16px !important;">SKILL GAMES</button>
+                        <button onclick="prikaziThinkingListu()" class="btn-glass" style="flex: 1; font-size: 16px !important;">THINKING GAMES</button>
+                    </div>
+                </div>
+
+                <div class="panel" style="flex: 1.5; background: #000; border: 1px solid rgba(255, 215, 0, 0.2);">
+                    <video autoplay muted loop style="position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0.4;">
+                        <source src="dashboard/logpozadina3.mp4" type="video/mp4">
+                    </video>
+                    
+                    <div style="position: relative; z-index: 3; padding: 20px; text-align: center;">
+                        <button onclick="otvoriModalSobe()" style="width: 80%; background: #ffd700; color: #000; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-family: 'Audiowide'; font-weight: bold; box-shadow: 0 0 15px #ffd70066;">
+                            KREIRAJ NOVU SOBU 🚀
+                        </button>
+                    </div>
+
+                    <div style="position: relative; z-index: 3; flex: 1; display: flex; flex-direction: column; padding: 20px; overflow: hidden;">
+                        <div id="naslov-soba" style="text-align: center; margin-bottom: 15px; color: #ffd700; font-size: 12px;">⚔️ AKTIVNI IZAZOVI</div>
+                        <div id="lista-soba" style="flex: 1; overflow-y: auto;">
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="prozor-prijatelji">
+            <div class="desni-overlay"></div>
+            <div style="position: relative; z-index: 2; padding: 40px 20px;">
+                <h3 style="border-bottom: 1px solid #2ecc71; color: #2ecc71; text-align: center; font-size: 14px; padding-bottom: 10px;">🟢 ONLINE</h3>
+                <div id="lista-igraca" style="margin-top: 20px; font-size: 13px;">Učitavanje...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-kreiraj-sobu" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);">
+        <div style="background: #111; padding: 40px; border: 1px solid #ffd700; border-radius: 20px; width: 350px; text-align: center;">
+            <h2 style="color: #ffd700; margin-bottom: 20px;">KREIRAJ MEČ</h2>
+            <select id="izbor-igre" style="width: 100%; padding: 12px; margin-bottom: 15px; background: #000; color: white; border: 1px solid #333;"></select>
+            <input type="number" id="ulog-sobe" value="100" style="width: 100%; padding: 12px; margin-bottom: 20px; background: #000; color: #ffd700; border: 1px solid #333;">
+            <button onclick="potvrdiKreiranje()" style="width: 100%; padding: 15px; background: #ffd700; border: none; font-family: 'Audiowide'; cursor: pointer;">POKRENI 🚀</button>
+            <p onclick="zatvoriModalSobe()" style="cursor: pointer; margin-top: 15px; font-size: 11px; opacity: 0.6;">ODUSTANI</p>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        let korisnik = JSON.parse(localStorage.getItem('user')) || { username: "GUEST", balans: 0, avatar: null };
+        let izabranaIgraFilter = null; 
+
+        const igreBaza = {
+            skill: [
+                { id: 'bilijar', naziv: '🎱 BILIJAR' },
+                { id: 'bomber', naziv: '💣 BOMBER MAN' },
+                { id: 'cannon', naziv: '🚀 CANNON DUEL' },
+                { id: 'headsoccer', naziv: '⚽ HEAD SOCCER' },
+                { id: 'pong', naziv: '🏓 NEON PONG' }
+            ],
+            thinking: [
+                { id: 'sah', naziv: '♟️ NEON CHESS' },
+                { id: 'iksoks', naziv: '❌ IKS OKS' },
+                { id: 'domino', naziv: '🀄 DOMINO' }
+            ]
+        };
+
+        window.onload = () => {
+            osveziUI();
+            socket.emit('join-game', { idIgre: 'lobby', username: korisnik.username });
+            socket.emit('get-active-rooms');
+        };
+
+        function osveziUI() {
+            document.getElementById('display-username').innerText = korisnik.username.toUpperCase();
+            document.getElementById('display-balans').innerText = (Number(korisnik.balans) || 0).toFixed(2) + " 💰";
+            if(korisnik.avatar) document.getElementById('user-photo').src = korisnik.avatar;
+        }
+
+        // --- FUNKCIJE DUGMIĆA ---
+        function prikaziSkillListu() {
+            let html = `<div style="padding:15px; background:rgba(0,0,0,0.8); display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ffd700;">
+                        <span style="color:#ffd700; font-size:12px;">SKILL GAMES</span>
+                        <button onclick="location.reload()" class="btn-glass" style="font-size:9px !important;">NAZAD</button>
+                    </div>`;
+            igreBaza.skill.forEach(igra => {
+                html += `<div onclick="setujFilterIgre('${igra.id}', '${igra.naziv}')" style="padding:15px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.05); font-size:13px;" onmouseover="this.style.background='rgba(255,215,0,0.1)'" onmouseout="this.style.background='transparent'">${igra.naziv}</div>`;
+            });
+            document.getElementById('prozorigre').innerHTML = html;
+        }
+
+        function prikaziThinkingListu() {
+            let html = `<div style="padding:15px; background:rgba(0,0,0,0.8); display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #00d7ff;">
+                        <span style="color:#00d7ff; font-size:12px;">THINKING GAMES</span>
+                        <button onclick="location.reload()" class="btn-glass" style="font-size:9px !important;">NAZAD</button>
+                    </div>`;
+            igreBaza.thinking.forEach(igra => {
+                html += `<div onclick="setujFilterIgre('${igra.id}', '${igra.naziv}')" style="padding:15px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.05); font-size:13px;" onmouseover="this.style.background='rgba(0,215,255,0.1)'" onmouseout="this.style.background='transparent'">${igra.naziv}</div>`;
+            });
+            document.getElementById('prozorigre').innerHTML = html;
+        }
+
+        function otvoriModalSobe() { 
+            document.getElementById('modal-kreiraj-sobu').style.display = 'flex'; 
+            const select = document.getElementById('izbor-igre');
+            select.innerHTML = '';
+            [...igreBaza.skill, ...igreBaza.thinking].forEach(igra => {
+                select.innerHTML += `<option value="${igra.id}">${igra.naziv}</option>`;
+            });
+        }
+
+        function zatvoriModalSobe() { document.getElementById('modal-kreiraj-sobu').style.display = 'none'; }
+
+        function potvrdiKreiranje() {
+            const igra = document.getElementById('izbor-igre').value;
+            const ulog = Number(document.getElementById('ulog-sobe').value);
+            if (korisnik.balans < ulog) { alert("Nedovoljno kredita!"); return; }
+            zatvoriModalSobe();
+            socket.emit('create-room', { igraID: igra, ulog: ulog, username: korisnik.username });
+        }
+
+        function setujFilterIgre(id, naziv) {
+            izabranaIgraFilter = id;
+            document.getElementById('naslov-soba').innerHTML = `⚔️ SOBE ZA: ${naziv}`;
+            socket.emit('get-active-rooms'); 
+        }
+
+        function odjaviSe() {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        function uploadSliku(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                korisnik.avatar = e.target.result;
+                localStorage.setItem('user', JSON.stringify(korisnik));
+                osveziUI();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // --- SOCKET LOGIKA ---
+        socket.on('osvezi-listu-soba', (sveSobe) => {
+            const lista = document.getElementById('lista-soba');
+            lista.innerHTML = '';
+            const filtrirane = sveSobe.filter(s => !izabranaIgraFilter || s.igraID === izabranaIgraFilter);
+            
+            if(filtrirane.length === 0) {
+                lista.innerHTML = '<div style="text-align:center; opacity:0.3; font-size:11px; margin-top:20px;">Nema aktivnih soba.</div>';
+                return;
+            }
+
+            filtrirane.forEach(soba => {
+                lista.innerHTML += `
+                    <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div>
+                            <div style="font-size: 13px;">${soba.nazivIgre}</div>
+                            <div style="font-size: 10px; color: #ffd700;">${soba.ulog} 💰 | ${soba.domacin}</div>
+                        </div>
+                        <button onclick="socket.emit('join-room', {sobaId: '${soba.id}', username: korisnik.username})" class="btn-glass" style="background:#2ecc71 !important;">UPADNI</button>
+                    </div>`;
+            });
+        });
+
+        socket.on('lista-igraca', (igraci) => {
+            document.getElementById('lista-igraca').innerHTML = igraci.map(i => `
+                <div style="margin-bottom:8px;"><i class="fas fa-circle" style="font-size:8px; color:#2ecc71; margin-right:8px;"></i>${i.username}</div>
+            `).join('');
+        });
+    </script>
+</body>
+</html>

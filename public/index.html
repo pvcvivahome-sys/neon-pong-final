@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEON | Gaming Experience 🕹️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Inter:wght@400;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff00ff;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Snap Scroll - Lepljenje sekcija */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body { 
+            background-color: #000;
+            margin: 0; 
+            font-family: 'Inter', sans-serif; 
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* --- VIDEO POZADINA --- */
+        #bg-video-main {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            filter: brightness(0.3) contrast(1.1);
+        }
+
+        /* --- NAVIGACIJA --- */
+      /* --- REVIDIRANA NAVIGACIJA --- */
+        nav { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 30px 60px; position: fixed; top: 0; width: 100%; 
+            box-sizing: border-box; z-index: 1000; transition: all 0.4s ease;
+        }
+
+        .nav-left-group { display: flex; align-items: center; gap: 40px; }
+        .nav-right-group { display: flex; align-items: center; gap: 30px; }
+
+        .nav-menu { display: flex; gap: 30px; align-items: center; }
+        /* Suptilna promena bez linije */
+        nav.scrolled {
+            padding: 15px 60px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo-container { display: flex; align-items: center; gap: 15px; cursor: pointer; }
+        .logo-img { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--neon-blue); }
+        .logo-text { font-family: 'Audiowide'; font-size: 22px; letter-spacing: 5px; text-shadow: 0 0 10px var(--neon-blue); }
+
+        .nav-menu { display: flex; gap: 40px; }
+        .nav-link { color: #fff; text-decoration: none; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.6; transition: 0.3s; }
+        .nav-link:hover { opacity: 1; color: var(--neon-blue); }
+
+        /* --- DUGMIĆI --- */
+        .btn-signup {
+            background: transparent; color: var(--neon-blue); border: 1px solid var(--neon-blue);
+            padding: 8px 20px; font-weight: 900; font-family: 'Audiowide'; cursor: pointer;
+            transition: 0.3s; letter-spacing: 1px; font-size: 11px;
+        }
+        .btn-signup:hover { background: rgba(0, 243, 255, 0.1); box-shadow: 0 0 15px var(--neon-blue); }
+
+        .btn-yellow { 
+            background: #fff; color: #000; border: none; padding: 8px 20px; 
+            font-weight: 900; font-family: 'Audiowide'; cursor: pointer; transition: 0.3s; font-size: 11px;
+        }
+
+        /* --- SEKCIJE --- */
+        .page-section {
+            height: 100vh; width: 100%;
+            display: flex; box-sizing: border-box;
+            position: relative;
+            scroll-snap-align: start; /* Ovde se lepi skrol */
+            padding: 100px 60px;
+        }
+
+        /* PRVA STRANA */
+        .hero-left { width: 65%; display: flex; align-items: center; }
+        .hero-left h1 { font-family: 'Audiowide'; font-size: 55px; text-transform: uppercase; text-shadow: 0 0 20px var(--neon-blue); }
+        .hero-right { width: 35%; display: flex; align-items: center; justify-content: center; }
+
+        .reg-box {
+            background: var(--glass); backdrop-filter: blur(20px); padding: 40px;
+            border-radius: 20px; border: 1px solid var(--glass-border); width: 100%;
+        }
+
+        /* DRUGA STRANA (DASHBOARD) */
+        .dash-header { text-align: center; width: 100%; margin-top: 20px; }
+        .dash-header h2 { font-family: 'Audiowide'; letter-spacing: 8px; font-size: 28px; text-shadow: 0 0 15px var(--neon-blue); margin: 0; }
+        .dash-header p { font-family: 'Audiowide'; color: var(--neon-pink); font-size: 14px; letter-spacing: 4px; margin: 10px 0 30px 0; }
+
+        .dashboard-layout { display: flex; width: 100%; gap: 30px; height: 70%; }
+        .dash-left { width: 50%; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; }
+        .dash-right { width: 50%; display: flex; flex-direction: column; gap: 15px; }
+
+        .mini-card {
+            background: var(--glass); border: 1px solid var(--glass-border); border-radius: 12px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: 0.3s; cursor: pointer; backdrop-filter: blur(10px);
+        }
+        .mini-card:hover { border-color: var(--neon-blue); background: rgba(0, 243, 255, 0.05); transform: translateY(-3px); }
+        .mini-card i { font-size: 24px; color: var(--neon-blue); margin-bottom: 8px; }
+        .mini-card h3 { font-family: 'Audiowide'; font-size: 12px; letter-spacing: 1px; }
+
+        .dash-panel { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 12px; padding: 15px; flex: 1; }
+        .dash-panel h4 { font-family: 'Audiowide'; font-size: 11px; color: var(--neon-blue); margin: 0 0 10px 0; border-bottom: 1px solid var(--glass-border); padding-bottom: 5px; }
+        .dash-table { width: 100%; font-size: 12px; }
+        .val-glow { color: #00ff00; text-shadow: 0 0 8px #00ff00; text-align: right; }
+        .growth-num { font-family: 'Audiowide'; font-size: 35px; color: var(--neon-pink); }
+
+        /* TREĆA STRANA (KONTAKT) */
+        .contact-layout { display: flex; width: 100%; gap: 50px; align-items: center; height: 100%; }
+        .about-box { width: 50%; padding: 30px; border-left: 3px solid var(--neon-pink); background: rgba(255,255,255,0.02); }
+        .about-box h2 { font-family: 'Audiowide'; color: var(--neon-pink); font-size: 24px; }
+        .contact-form { width: 50%; background: var(--glass); padding: 30px; border-radius: 15px; border: 1px solid var(--glass-border); }
+
+        /* FORMA ELEMENTI */
+        input, textarea { 
+            width:100%; background:rgba(255,255,255,0.05); border:none; 
+            border-bottom: 1px solid #333; color:white; padding:12px; 
+            margin-bottom:15px; outline:none; font-family:'Audiowide'; font-size: 11px;
+            box-sizing: border-box;
+        }
+        input:focus { border-bottom-color: var(--neon-blue); }
+        .btn-action { width: 100%; background: #fff; color: #000; border: none; padding: 12px; font-weight: 900; font-family: 'Audiowide'; cursor: pointer; transition: 0.3s; }
+        .btn-action:hover { background: var(--neon-blue); }
+
+        /* MODAL */
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; backdrop-filter: blur(5px); }
+        #login-ekran { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #080808; padding: 50px; border: 1px solid var(--neon-blue); z-index: 2001; width: 320px; text-align: center; border-radius: 10px; }
+
+        .footer-ui { 
+            position: fixed; bottom: 0; height: 60px; width: 100%; 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 0 60px; box-sizing: border-box; font-size: 9px; 
+            z-index: 999; pointer-events: none; opacity: 0.6;
+        }
+        .nav-menu { display: flex; gap: 30px; align-items: center; }
+        
+        /* Dodat stil za Privacy link da se suptilno razlikuje */
+        .nav-link.privacy {
+            font-size: 10px;
+            opacity: 0.4;
+            border-left: 1px solid rgba(255,255,255,0.2);
+            padding-left: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <video autoplay muted loop playsinline id="bg-video-main">
+        <source src="pocetna/pozadina11.mp4" type="video/mp4">
+    </video>
+
+    <nav id="mainNav">
+        <div class="nav-left-group">
+            <div class="logo-container" onclick="window.scrollTo(0,0)">
+                <img src="pocetna/neon.jpg" alt="Logo" class="logo-img">
+                <div class="logo-text">NEON</div>
+            </div>
+            <div class="nav-menu">
+                <a href="#" class="nav-link">Moj Nalog</a>
+                <a href="#" class="nav-link">Turniri</a>
+            </div>
+        </div>
+
+        <div class="nav-right-group">
+            <a href="privacy.html" class="nav-link">Politika Privatnosti</a>
+            <div style="display: flex; gap: 15px;">
+               <button class="btn-signup" onclick="window.location.href='register.html'">SIGN UP</button>
+               <button class="btn-yellow" onclick="otvoriLogin()">LOG IN</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-section">
+        <div class="hero-left">
+            <h1>Vreme je da unovčiš<br>svoje znanje!</h1>
+        </div>
+        <div class="hero-right">
+            <div class="reg-box">
+                <h2 style="font-family: 'Audiowide'; text-align: center; letter-spacing: 3px;">PRIDRUŽI SE</h2>
+                <form id="mainRegisterForm">
+                    <input type="text" placeholder="KORISNIČKO IME" required>
+                    <input type="email" placeholder="EMAIL ADRESA" required>
+                    <input type="password" placeholder="LOZINKA" required>
+                    <button type="submit" class="btn-action">KREIRAJ NALOG</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-section" style="flex-direction: column; justify-content: center;">
+        <div class="dash-header">
+            <h2>NEON JE NA VAŠOJ STRANI</h2>
+            <p>DEMO IGRICE</p>
+        </div>
+        
+        <div class="dashboard-layout">
+            <div class="dash-left">
+                <div class="mini-card" onclick="window.location.href='demo.html'">
+                    <i class="fas fa-gamepad"></i>
+                    <h3>DEMO MOD</h3>
+                </div>
+                <div class="mini-card">
+                    <i class="fas fa-trophy"></i>
+                    <h3>RANG LISTA</h3>
+                </div>
+                <div class="mini-card">
+                    <i class="fas fa-bolt"></i>
+                    <h3>LIVE MEČEVI</h3>
+                </div>
+                <div class="mini-card">
+                    <i class="fas fa-fire"></i>
+                    <h3>TRENDOVI</h3>
+                </div>
+            </div>
+
+            <div class="dash-right">
+                <div class="dash-panel">
+                    <h4><i class="fas fa-signal"></i> SERVER STATUS</h4>
+                    <table class="dash-table">
+                        <tr><td>Balkan Node-1</td><td class="val-glow">1,240</td></tr>
+                        <tr><td>Europe Node-4</td><td class="val-glow">4,892</td></tr>
+                    </table>
+                </div>
+                <div class="dash-panel">
+                    <h4><i class="fas fa-award"></i> AKTIVNI TURNIRI</h4>
+                    <table class="dash-table">
+                        <tr><td>Neon Cup (500€)</td><td style="text-align:right;"><span style="color:var(--neon-blue); font-size:10px;">AKTIVAN</span></td></tr>
+                        <tr><td>Master Slot</td><td style="text-align:right;"><span style="color:var(--neon-blue); font-size:10px;">20:00h</span></td></tr>
+                    </table>
+                </div>
+                <div class="dash-panel">
+                    <h4><i class="fas fa-chart-line"></i> DNEVNI RAST</h4>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span class="growth-num">+128</span>
+                        <i class="fas fa-users-plus" style="color: var(--neon-pink); opacity: 0.5; font-size: 20px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-section">
+        <div class="contact-layout">
+            <div class="about-box">
+                <h2>O NEON-U</h2>
+                <p style="font-size: 14px; line-height: 1.6; opacity: 0.7;">
+                    NEON je prva decentralizovana arena na Balkanu gde tvoj "skill" direktno utiče na tvoj balans. 
+                    Bez skrivenih algoritama, fer-plej je upisan u naš kod.
+                </p>
+                <div style="margin-top: 30px; display: flex; gap: 20px; font-size: 20px; color: var(--neon-blue);">
+                    <i class="fab fa-discord"></i> <i class="fab fa-instagram"></i> <i class="fab fa-telegram"></i>
+                </div>
+            </div>
+            <div class="contact-form">
+                <h3 style="font-family: 'Audiowide'; margin-bottom: 20px;">POŠALJI SIGNAL</h3>
+                <input type="text" placeholder="IME">
+                <input type="email" placeholder="EMAIL">
+                <textarea rows="3" placeholder="PORUKA"></textarea>
+                <button class="btn-action">POŠALJI</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-ui">
+        <div>STATUS: <span style="color: var(--neon-blue);">STABLE</span></div>
+        <div id="clock">00:00:00</div>
+        <div>v2.0.26 / SEOUL-SRB</div>
+    </div>
+
+    <div id="overlay" onclick="zatvoriLogin()"></div>
+    <div id="login-ekran">
+        <h2 style="font-family: 'Audiowide'; color: var(--neon-blue); margin-bottom: 30px;">LOGIN</h2>
+        <input type="text" id="username" placeholder="USERNAME">
+        <input type="password" id="password" placeholder="PASSWORD">
+        <button onclick="izvrsiLogin()" class="btn-action">PRISTUPI</button>
+    </div>
+
+    <script>
+        // --- Sat ---
+        function updateClock() { 
+            const clockEl = document.getElementById('clock');
+            if(clockEl) clockEl.innerText = new Date().toLocaleTimeString(); 
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // --- Navigacija na skrol ---
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('mainNav');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // --- Modal Funkcije ---
+        function otvoriLogin() { 
+            document.getElementById('login-ekran').style.display = 'block'; 
+            document.getElementById('overlay').style.display = 'block'; 
+        }
+        function zatvoriLogin() { 
+            document.getElementById('login-ekran').style.display = 'none'; 
+            document.getElementById('overlay').style.display = 'none'; 
+        }
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
