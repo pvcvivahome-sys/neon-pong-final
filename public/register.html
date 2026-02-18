@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registracija | Neon Casino 🕹️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --neon-yellow: #ffd700;
+            --bg-dark: #070709;
+        }
+
+        body { 
+            background-color: var(--bg-dark); 
+            color: white; 
+            margin: 0; 
+            font-family: 'Audiowide', sans-serif; 
+            height: 100vh; 
+            overflow: hidden; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            align-items: center;
+            transition: all 1.2s cubic-bezier(0.85, 0, 0.15, 1);
+        }
+
+        .section-left {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 1.2s cubic-bezier(0.85, 0, 0.15, 1);
+            flex-shrink: 0;
+        }
+
+        .active-layout .section-left {
+            width: 50%;
+        }
+
+        #intro-video {
+            height: 80%;
+            width: auto;
+            max-width: 90%;
+            mask-image: radial-gradient(circle, black 30%, transparent 80%);
+            -webkit-mask-image: radial-gradient(circle, black 30%, transparent 80%);
+            filter: brightness(0.9) contrast(1.1);
+            object-fit: contain;
+        }
+
+        .section-right {
+            width: 0%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 1.2s cubic-bezier(0.85, 0, 0.15, 1);
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.01);
+            border-left: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .active-layout .section-right {
+            width: 50%;
+            opacity: 1;
+        }
+
+        .reg-container {
+            width: 80%;
+            max-width: 400px;
+            transform: translateX(50px);
+            transition: transform 1s ease 0.5s;
+            text-align: center;
+        }
+
+        .active-layout .reg-container {
+            transform: translateX(0);
+        }
+
+        .log-input { 
+            width: 100%; 
+            padding: 12px 15px; 
+            margin-bottom: 12px; 
+            background: rgba(255,255,255,0.05); 
+            color: white; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 6px; 
+            box-sizing: border-box; 
+            font-family: 'Audiowide';
+            outline: none;
+            font-size: 13px;
+        }
+
+        .btn-main { 
+            width: 100%; 
+            background: var(--neon-yellow); 
+            color: #000; 
+            border: none; 
+            padding: 15px; 
+            font-family: 'Audiowide'; 
+            font-weight: bold; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            transition: 0.3s;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
+        .btn-main:hover { background: #fff; box-shadow: 0 0 20px rgba(255,215,0,0.4); }
+
+        .btn-login-alt {
+            display: block;
+            width: 100%;
+            margin-top: 15px;
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 15px;
+            font-family: 'Audiowide';
+            font-weight: 900;
+            font-size: 11px;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .btn-login-alt:hover {
+            background: var(--neon-yellow);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .follow-container {
+            margin-top: 35px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,215,0,0.1);
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1s ease 0.8s;
+        }
+
+        .active-layout .follow-container {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .follow-title {
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: rgba(255,255,255,0.3);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .social-icons a { color: white; font-size: 20px; transition: 0.4s; }
+        .social-icons a:hover { color: var(--neon-yellow); transform: scale(1.2); }
+
+        .close-btn { position: fixed; top: 30px; right: 40px; font-size: 40px; color: white; text-decoration: none; z-index: 100; opacity: 0.5; transition: 0.3s; }
+        .close-btn:hover { opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="close-btn">&times;</a>
+
+    <div class="main-container" id="master-container">
+        <div class="section-left">
+            <video id="intro-video" autoplay muted playsinline loop>
+                <source src="reg/dart.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="section-right">
+            <div class="reg-container">
+                <h1 style="letter-spacing: 5px; margin-bottom: 5px; font-size: 24px;">PRIDRUŽI SE</h1>
+                <p style="color: var(--neon-yellow); font-size: 9px; margin-bottom: 25px; letter-spacing: 2px;">KREIRAJ SVOJ IDENTITET</p>
+                
+                <form id="registerForm">
+                    <input type="text" id="username" class="log-input" placeholder="KREIRAJ KORISNIČKO IME" required>
+                    <input type="password" id="password" class="log-input" placeholder="KREIRAJ ŠIFRU" required>
+                    <input type="password" id="confirmPassword" class="log-input" placeholder="POTVRDI ŠIFRU" required>
+                    <input type="email" id="email" class="log-input" placeholder="E-MAIL ADRESA" required>
+                    
+                    <button type="submit" class="btn-main">KREIRAJ NALOG</button>
+                </form>
+
+                <button class="btn-login-alt" onclick="window.location.href='index.html'">VEĆ IMAŠ NALOG? ULOGUJ SE</button>
+            </div>
+
+            <div class="follow-container">
+                <div class="follow-title">Follow Us</div>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Pokretanje animacije nakon pola sekunde
+    window.onload = () => {
+        setTimeout(() => {
+            const container = document.getElementById('master-container');
+            if(container) container.classList.add('active-layout');
+        }, 500);
+    };
+
+    // Glavna logika za registraciju
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (password !== confirmPassword) {
+            alert("❌ Lozinke se ne poklapaju!");
+            return;
+        }
+
+        try {
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, email })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert("✅ USPEŠNA REGISTRACIJA!\n\nSada se možeš ulogovati.");
+                window.location.href = "index.html"; 
+            } else {
+                alert("❌ GREŠKA: " + (data.poruka || "Došlo je do problema."));
+            }
+        } catch (err) {
+            console.error("Greška:", err);
+            alert("⚠️ Server nije dostupan.");
+        }
+    });
+</script>
+</body>
+</html>

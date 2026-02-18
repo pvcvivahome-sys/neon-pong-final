@@ -1,0 +1,15 @@
+# Zavisnosti (Biblioteke)
+node_modules/
+dist/
+.npm/
+
+# Sistemski fajlovi
+.DS_Store
+Thumbs.db
+
+# Privatni podaci (ako ih budeš imao)
+.env
+users.json
+
+# Logovi
+npm-debug.log*

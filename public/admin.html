@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NEON ADMIN PANEL</title>
+    <style>
+        body { background: #000; color: #0f0; font-family: monospace; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #0f0; padding: 10px; text-align: left; }
+        input { background: #000; color: #0f0; border: 1px solid #0f0; padding: 5px; }
+        button { background: #0f0; color: #000; border: none; padding: 5px 10px; cursor: pointer; }
+        button.del { background: #f00; color: #fff; }
+    </style>
+</head>
+<body>
+    <h1>🕹️ NEON CASINO - ADMIN PANEL</h1>
+    <button onclick="osveziListu()">OSVEŽI LISTU KORISNIKA</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Balans</th>
+                <th>Status</th>
+                <th>Akcije</th>
+            </tr>
+        </thead>
+        <tbody id="userTable"></tbody>
+    </table>
+
+    <script>
+        async function osveziListu() {
+            const res = await fetch('/admin/users');
+            const users = await res.json();
+            const table = document.getElementById('userTable');
+            table.innerHTML = '';
+
+            users.forEach(u => {
+                table.innerHTML += `
+                    <tr>
+                        <td>${u.username} ${u.role === 'admin' ? '⭐' : ''}</td>
+                        <td>${u.email}</td>
+                        <td>
+                            <input type="number" id="bal-${u.username}" value="${u.balans}">
+                            <button onclick="promeniBalans('${u.username}')">SET</button>
+                        </td>
+                        <td>${u.verified ? '✅' : '❌ WAIT'}</td>
+                        <td>
+                            <button class="del" onclick="obrisiKorisnika('${u.username}')">X</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function promeniBalans(username) {
+            const noviBalans = document.getElementById(`bal-${username}`).value;
+            await fetch('/admin/update-balance', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username, noviBalans })
+            });
+            alert('Balans ažuriran!');
+            osveziListu();
+        }
+
+        async function obrisiKorisnika(username) {
+            if(confirm('Sigurno brišeš?')) {
+                await fetch('/admin/delete-user', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username })
+                });
+                osveziListu();
+            }
+        }
+
+        osveziListu();
+    </script>
+</body>
+</html>
