@@ -45,6 +45,39 @@ if (mainRegForm) {
         } catch (err) { alert("⚠️ Server nije dostupan."); }
     });
 }
+// RUTA ZA LOGIN (Pristup sistemu)
+app.post('/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+
+        // 1. Tražimo korisnika u MongoDB
+        // Pretpostavljamo da koristiš User model (Mongoose)
+        const korisnik = await User.findOne({ username: username });
+
+        if (!korisnik) {
+            return res.status(401).json({ poruka: "Korisnik nije pronađen." });
+        }
+
+        // 2. Provera lozinke (Ovdje ide obična provera jer nismo radili bcrypt)
+        if (korisnik.password !== password) {
+            return res.status(401).json({ poruka: "Pogrešna lozinka." });
+        }
+
+        // 3. Ako je sve OK, šaljemo podatke nazad
+        console.log(`✅ Korisnik ${username} se uspešno ulogovao.`);
+        res.json({
+            poruka: "Uspešna prijava!",
+            podaci: {
+                username: korisnik.username,
+                balance: korisnik.balance
+            }
+        });
+
+    } catch (err) {
+        console.error("Greška pri loginu:", err);
+        res.status(500).json({ poruka: "Serverska greška." });
+    }
+});
 
 // --- LOGIKA: Provera da li korisnik sme da uđe u igru ---
 function proveriPristup() {
