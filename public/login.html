@@ -217,45 +217,48 @@
     </div>
 
     <script>
-    console.log("Skripta učitana!"); // Ovo mora da piše u konzoli čim otvoriš sajt
+    console.log("✅ Login skripta učitana!");
 
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        console.log("Dugme kliknuto!"); // Test da li event listener radi
-        
         const u = document.getElementById('username').value;
         const p = document.getElementById('password').value;
-
-        // Vizuelni feedback
         const btn = e.target.querySelector('button');
+
+        console.log("🔐 Pokušaj login sa:", u);
+
         btn.innerText = "PROVERAVAM...";
         btn.disabled = true;
 
         try {
+            console.log("📡 Slanje zahteva serveru...");
             const response = await fetch('/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username: u, password: p })
             });
 
+            console.log("📥 Odgovor servera - Status:", response.status);
             const data = await response.json();
+            console.log("📦 Podaci iz servera:", data);
 
-            if (response.ok) {
-                // Čuva token i korisničke podatke
+            if (response.ok && data.token) {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
                 
-                console.log("✅ Uspešan login! Token:", data.token.substring(0, 20) + "...");
-                window.location.href = "dashboard.html"; 
+                console.log("✅ Uspešan login!");
+                setTimeout(() => {
+                    window.location.href = "dashboard.html";
+                }, 500);
             } else {
-                alert("❌ GREŠKA: " + (data.poruka || "Pogrešni podaci."));
+                alert("❌ GREŠKA: " + (data.poruka || "Pogrešni podaci"));
                 btn.innerText = "PRISTUPI SISTEMU";
                 btn.disabled = false;
             }
         } catch (err) {
-            console.error("Greška pri slanju:", err);
-            alert("⚠️ Server ne odgovara. Proveri da li je Render aktivan.");
+            console.error("❌ Greška pri login-u:", err);
+            alert("⚠️ Server ne odgovara!\n\nProveri:\n1. Da li je server pokrenut?\n2. http://localhost:3000 ili https://neon-live.onrender.com");
             btn.innerText = "PRISTUPI SISTEMU";
             btn.disabled = false;
         }
