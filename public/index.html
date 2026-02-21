@@ -226,7 +226,7 @@
             <a href="privacy.html" class="nav-link">Politika Privatnosti</a>
             <div style="display: flex; gap: 15px;">
                <button class="btn-signup" onclick="window.location.href='register.html'">SIGN UP</button>
-               <button class="btn-yellow" onclick="window.location.href='login.html'">LOG IN</button>
+               <button class="btn-yellow" onclick="window.location.href='dashboard.html'">LOG IN</button>
             </div>
         </div>
     </nav>
@@ -370,10 +370,9 @@
             }
         });
 
-        // --- Modal Funkcije ---
-        function otvoriLogin() { 
-            document.getElementById('login-ekran').style.display = 'block'; 
-            document.getElementById('overlay').style.display = 'block'; 
+        // --- Modal Funkcije (now redirect to dashboard) ---
+        function otvoriLogin() {
+            window.location.href = 'dashboard.html';
         }
         function zatvoriLogin() { 
             document.getElementById('login-ekran').style.display = 'none'; 
