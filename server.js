@@ -32,32 +32,26 @@ const writeLocalUsers = (arr) => {
     fs.writeFileSync(localUsersPath, JSON.stringify(arr, null, 2));
 };
 
-// DB wrapper functions that prefer MongoDB but fall back to local JSON
-const dbIsConnected = () => mongoose.connection.readyState === 1;
+// DB wrapper functions - koriste samo lokalni JSON fallback
+const dbIsConnected = () => false; // Uvek vraća false - samo lokalni mode
 
 async function dbFindByUsername(username) {
-    if (dbIsConnected()) return await User.findOne({ username });
     const users = readLocalUsers();
     return users.find(u => u.username === username) || null;
 }
 
 async function dbFindByEmail(email) {
-    if (dbIsConnected()) return await User.findOne({ email });
     const users = readLocalUsers();
     return users.find(u => u.email === email) || null;
 }
 
 async function dbFindById(id) {
-    if (dbIsConnected()) return await User.findById(id);
     const users = readLocalUsers();
     return users.find(u => String(u.id) === String(id)) || null;
 }
 
 async function dbCreateUser(userObj) {
-    if (dbIsConnected()) {
-        const m = new User(userObj);
-        return await m.save();
-    }
+    // Koristi samo lokalni JSON fallback
     const users = readLocalUsers();
     const id = Date.now().toString();
     const newUser = Object.assign({ id }, userObj, { createdAt: new Date() });
@@ -67,10 +61,14 @@ async function dbCreateUser(userObj) {
 }
 
 async function dbSaveUser(user) {
-    if (dbIsConnected()) return await user.save();
+    // Koristi samo lokalni JSON fallback
     const users = readLocalUsers();
     const idx = users.findIndex(u => u.username === user.username || String(u.id) === String(user.id));
-    if (idx === -1) { users.push(user); } else { users[idx] = user; }
+    if (idx === -1) { 
+        users.push(user); 
+    } else { 
+        users[idx] = user; 
+    }
     writeLocalUsers(users);
     return user;
 }
@@ -100,7 +98,32 @@ app.get('/dashboard.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
-// --- MONGODB ATLAS POVEZIVANJE ---
+// --- RUTE ZA IGRICE ---
+app.get('/games', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'games', 'index.html'));
+});
+
+app.get('/games/:game', (req, res) => {
+    const game = req.params.game.replace(/[^a-zA-Z0-9_-]/g, '');
+    const igraPath = path.join(__dirname, 'public', 'games', game + '.html');
+    
+    // Ako HTML file ne postoji, pokušaj sa samim JS failom kao fallback
+    if (fs.existsSync(igraPath)) {
+        res.sendFile(igraPath);
+    } else {
+        const jsPath = path.join(__dirname, 'public', 'games', game + '.js');
+        if (fs.existsSync(jsPath)) {
+            res.type('text/javascript');
+            res.sendFile(jsPath);
+        } else {
+            res.sendFile(path.join(__dirname, 'public', 'games', 'index.html'));
+        }
+    }
+});
+
+// --- MONGODB: ISKLJUCENO - KORISTI SE SAMO LOKALNI FALLBACK ---
+// Ako trebate MongoDB kasnije, odkomentarišite dolje:
+/*
 mongoose.connect(process.env.MONGO_URI, {
     serverSelectionTimeoutMS: 5000,
     socketTimeoutMS: 45000,
@@ -114,11 +137,15 @@ mongoose.connect(process.env.MONGO_URI, {
         console.error("   Razlog:", err.message);
         console.log("   Server će nastaviti rad sa lokalnom test bazom");
     });
+*/
+console.log("📁 Koristi se LOKALNI JSON fallback - MongoDB ISKLJUCEN");
 
-// --- BAZA: Model sa fiokama za Demo i Real ---
+// --- USER MODEL: ISKLJUCEN - KORISTI SE LOKALNI JSON ---
+// User objekat je već definisan u local JSON fallback
+/*
 const userSchema = new mongoose.Schema({
     username: { type: String, unique: true, required: true, minlength: 3, maxlength: 30 },
-    password: { type: String, required: true }, // Kriptovana lozinka
+    password: { type: String, required: true },
     email: { type: String, unique: true, required: true },
     balans_real: { type: Number, default: 0 },
     balans_demo: { type: Number, default: 5000 },
@@ -127,6 +154,7 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
+*/
 
 // --- SIGURNOST: Middleware za provere (Za Web i App) ---
 const zastitiRutu = (req, res, next) => {
