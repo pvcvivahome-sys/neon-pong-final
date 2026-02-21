@@ -9,6 +9,71 @@ const path = require('path');
 // 1. SETUP: Uvoz paketa za sigurnost
 const bcrypt = require('bcryptjs'); 
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+const localUsersPath = path.join(__dirname, 'data', 'local_users.json');
+
+// Ensure data folder and file exist for local fallback
+try {
+    const dataDir = path.join(__dirname, 'data');
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+    if (!fs.existsSync(localUsersPath)) fs.writeFileSync(localUsersPath, JSON.stringify([]));
+} catch (e) {
+    console.error('Ne mogu da pristupim lokalnoj data strukturi:', e.message);
+}
+
+// Helper: read/write local users
+const readLocalUsers = () => {
+    try {
+        const raw = fs.readFileSync(localUsersPath, 'utf8');
+        return JSON.parse(raw || '[]');
+    } catch (e) { return []; }
+};
+const writeLocalUsers = (arr) => {
+    fs.writeFileSync(localUsersPath, JSON.stringify(arr, null, 2));
+};
+
+// DB wrapper functions that prefer MongoDB but fall back to local JSON
+const dbIsConnected = () => mongoose.connection.readyState === 1;
+
+async function dbFindByUsername(username) {
+    if (dbIsConnected()) return await User.findOne({ username });
+    const users = readLocalUsers();
+    return users.find(u => u.username === username) || null;
+}
+
+async function dbFindByEmail(email) {
+    if (dbIsConnected()) return await User.findOne({ email });
+    const users = readLocalUsers();
+    return users.find(u => u.email === email) || null;
+}
+
+async function dbFindById(id) {
+    if (dbIsConnected()) return await User.findById(id);
+    const users = readLocalUsers();
+    return users.find(u => String(u.id) === String(id)) || null;
+}
+
+async function dbCreateUser(userObj) {
+    if (dbIsConnected()) {
+        const m = new User(userObj);
+        return await m.save();
+    }
+    const users = readLocalUsers();
+    const id = Date.now().toString();
+    const newUser = Object.assign({ id }, userObj, { createdAt: new Date() });
+    users.push(newUser);
+    writeLocalUsers(users);
+    return newUser;
+}
+
+async function dbSaveUser(user) {
+    if (dbIsConnected()) return await user.save();
+    const users = readLocalUsers();
+    const idx = users.findIndex(u => u.username === user.username || String(u.id) === String(user.id));
+    if (idx === -1) { users.push(user); } else { users[idx] = user; }
+    writeLocalUsers(users);
+    return user;
+}
 
 const app = express();
 const server = http.createServer(app);
@@ -118,9 +183,10 @@ app.post('/register', async (req, res) => {
             return res.status(400).json({ status: "greška", poruka: "Lozinka mora biti najmanje 6 karaktera." });
         }
 
-        // Provera da li korisnik već postoji
-        const postoji = await User.findOne({ $or: [{ username }, { email }] });
-        if (postoji) {
+        // Provera da li korisnik već postoji (DB ili lokalno)
+        const postojiUser = await dbFindByUsername(username);
+        const postojiEmail = await dbFindByEmail(email);
+        if (postojiUser || postojiEmail) {
             return res.status(409).json({ status: "greška", poruka: "Korisničko ime ili email već postoji." });
         }
 
@@ -128,29 +194,28 @@ app.post('/register', async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Kreiranje novi korisnika sa Demo balansom
-        const noviKorisnik = new User({ 
+        // Kreiranje novi korisnika sa Demo balansom (DB ili lokalno)
+        const noviKorisnik = await dbCreateUser({ 
             username, 
             password: hashedPassword, 
             email,
             balans_demo: 5000  // Demo nalog dobija 5000 za igranje
         });
 
-        await noviKorisnik.save();
-        
         // Generisanje JWT tokena za automatski login nakon registracije
-        const token = jwt.sign({ id: noviKorisnik._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        const userId = noviKorisnik._id || noviKorisnik.id;
+        const token = jwt.sign({ id: userId, username: username }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
         res.json({ 
             status: "uspešno", 
             poruka: "Nalog je kreiran!",
             token,
             user: {
-                id: noviKorisnik._id,
+                id: userId,
                 username: noviKorisnik.username,
                 email: noviKorisnik.email,
-                balans_demo: noviKorisnik.balans_demo,
-                balans_real: noviKorisnik.balans_real
+                balans_demo: noviKorisnik.balans_demo || 5000,
+                balans_real: noviKorisnik.balans_real || 0
             }
         });
     } catch (err) {
@@ -168,8 +233,8 @@ app.post('/login', async (req, res) => {
             return res.status(400).json({ status: "greška", poruka: "Korisničko ime i lozinka su obavezni." });
         }
 
-        // Pronalaženje korisnika
-        const user = await User.findOne({ username });
+        // Pronalaženje korisnika (DB ili lokalno)
+        const user = await dbFindByUsername(username);
         if (!user) {
             return res.status(401).json({ status: "greška", poruka: "Korisničko ime ili lozinka nisu tačni." });
         }
@@ -181,8 +246,9 @@ app.post('/login', async (req, res) => {
         }
 
         // Generisanje JWT tokena (Traje 7 dana - pogodan za Web i App)
+        const uid = user._id || user.id;
         const token = jwt.sign(
-            { id: user._id, username: user.username }, 
+            { id: uid, username: user.username || username }, 
             process.env.JWT_SECRET, 
             { expiresIn: '7d' }
         );
@@ -192,13 +258,13 @@ app.post('/login', async (req, res) => {
             poruka: "Uspešna prijava!",
             token,  // Ovaj token App/Web čuvaju i šalju sa svakim requestom
             user: {
-                id: user._id,
-                username: user.username,
-                email: user.email,
-                balans_real: user.balans_real,
-                balans_demo: user.balans_demo,
-                avatar: user.avatar
-            }
+                    id: user._id || user.id,
+                    username: user.username,
+                    email: user.email,
+                    balans_real: user.balans_real || user.balans_real === 0 ? user.balans_real : (user.balance || 0),
+                    balans_demo: user.balans_demo || 0,
+                    avatar: user.avatar || null
+                }
         });
     } catch (err) {
         console.error("Greška pri loginu:", err);
@@ -209,7 +275,7 @@ app.post('/login', async (req, res) => {
 // 3. PROFIL: Preuzimanje podataka korisnika (Zaštićena ruta - za Web i App)
 app.get('/profile', zastitiRutu, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select('-password');
+        const user = await dbFindById(req.user.id);
         if (!user) {
             return res.status(404).json({ status: "greška", poruka: "Korisnik nije pronađen." });
         }
@@ -217,13 +283,13 @@ app.get('/profile', zastitiRutu, async (req, res) => {
         res.json({ 
             status: "uspešno",
             user: {
-                id: user._id,
+                id: user._id || user.id,
                 username: user.username,
                 email: user.email,
-                balans_real: user.balans_real,
-                balans_demo: user.balans_demo,
-                avatar: user.avatar,
-                createdAt: user.createdAt
+                balans_real: user.balans_real || user.balans_real === 0 ? user.balans_real : (user.balance || 0),
+                balans_demo: user.balans_demo || 0,
+                avatar: user.avatar || null,
+                createdAt: user.createdAt || user.createdAt
             }
         });
     } catch (err) {
@@ -245,7 +311,7 @@ app.get('/verify-token', zastitiRutu, (req, res) => {
 app.put('/profile', zastitiRutu, async (req, res) => {
     const { email, avatar } = req.body;
     try {
-        const user = await User.findById(req.user.id);
+        const user = await dbFindById(req.user.id);
         if (!user) {
             return res.status(404).json({ status: "greška", poruka: "Korisnik nije pronađen." });
         }
@@ -253,7 +319,7 @@ app.put('/profile', zastitiRutu, async (req, res) => {
         // Ažuriranje dozvoljenih polja
         if (email && email !== user.email) {
             // Provera da li email već postoji
-            const exists = await User.findOne({ email });
+            const exists = await dbFindByEmail(email);
             if (exists) {
                 return res.status(409).json({ status: "greška", poruka: "Email već postoji." });
             }
@@ -264,13 +330,13 @@ app.put('/profile', zastitiRutu, async (req, res) => {
             user.avatar = avatar;
         }
 
-        await user.save();
+        await dbSaveUser(user);
 
         res.json({ 
             status: "uspešno",
             poruka: "Profil je ažuriran.",
             user: {
-                id: user._id,
+                id: user._id || user.id,
                 username: user.username,
                 email: user.email,
                 avatar: user.avatar
@@ -289,13 +355,13 @@ app.post('/proveri-ulaz', zastitiRutu, async (req, res) => {
     
     try {
         // req.user.id dobijamo direktno iz tokena (sigurnije je)
-        const user = await User.findById(req.user.id);
+        const user = await dbFindById(req.user.id);
         const igra = igre.find(i => i.id === idIgre);
 
         if (user && igra && user[polje] >= igra.ulog) {
-            user[polje] -= igra.ulog;
-            await user.save();
-            io.emit('update-balans', { username: user.username, noviBalans: user[polje], tip: tipValute });
+                user[polje] -= igra.ulog;
+                await dbSaveUser(user);
+                io.emit('update-balans', { username: user.username, noviBalans: user[polje], tip: tipValute });
             res.json({ status: "odobreno", noviBalans: user[polje] });
         } else {
             res.status(403).json({ status: "odbijeno", poruka: "Nemaš dovoljno sredstava!" });
@@ -363,11 +429,11 @@ io.on('connection', (socket) => {
             io.to(data.room).emit('victory', { pobednik: data.pobednik, nagrada });
             
             try {
-                const user = await User.findOne({ username: data.pobednik });
+                const user = await dbFindByUsername(data.pobednik);
                 if(user) {
                     const polje = data.tipValute === 'real' ? 'balans_real' : 'balans_demo';
-                    user[polje] += nagrada;
-                    await user.save();
+                    user[polje] = (user[polje] || 0) + nagrada;
+                    await dbSaveUser(user);
                     io.emit('update-balans', { username: data.pobednik, noviBalans: user[polje], tip: data.tipValute });
                 }
             } catch (e) { console.log("Greška kod nagrade"); }
@@ -428,7 +494,7 @@ function startPongLoop(roomID) {
     }, 1000 / 60);
 }
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
     console.log(`🚀 SERVER ONLINE NA PORTU ${PORT}`);
     console.log(`📱 Frontend dostupan na http://localhost:${PORT}`);
