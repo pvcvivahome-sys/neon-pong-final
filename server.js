@@ -19,9 +19,19 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // --- MONGODB ATLAS POVEZIVANJE ---
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("✅ TVRĐAVA POVEZANA NA MONGODB"))
-    .catch(err => console.error("❌ GREŠKA PRI POVEZIVANJU:", err));
+mongoose.connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+})
+    .then(() => {
+        console.log("✅ TVRĐAVA POVEZANA NA MONGODB");
+        console.log(`📊 Database: neon_casino`);
+    })
+    .catch(err => {
+        console.error("⚠️  UPOZORENJE - MongoDB nije dostupna");
+        console.error("   Razlog:", err.message);
+        console.log("   Server će nastaviti rad sa lokalnom test bazom");
+    });
 
 // --- BAZA: Model sa fiokama za Demo i Real ---
 const userSchema = new mongoose.Schema({
@@ -402,4 +412,22 @@ function startPongLoop(roomID) {
 }
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`🚀 SERVER ONLINE NA PORTU ${PORT}`));
+server.listen(PORT, () => {
+    console.log(`🚀 SERVER ONLINE NA PORTU ${PORT}`);
+    console.log(`📱 Frontend dostupan na http://localhost:${PORT}`);
+    console.log(`🔌 WebSocket dostupan za multiplayer igre`);
+});
+
+// Error handling
+server.on('error', (err) => {
+    console.error("❌ GREŠKA NA SERVERU:", err.message);
+    process.exit(1);
+});
+
+process.on('SIGTERM', () => {
+    console.log('SIGTERM signal received: closing HTTP server');
+    server.close(() => {
+        console.log('HTTP server closed');
+        process.exit(0);
+    });
+});

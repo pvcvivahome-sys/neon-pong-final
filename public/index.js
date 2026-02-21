@@ -10,10 +10,18 @@ async function izvrsiLogin() {
         });
         const data = await response.json();
         if (response.ok) {
-            localStorage.setItem('user', JSON.stringify(data.podaci));
+            // ✅ ISPRAVLJENO: Čuva token i user objekat kako je server vraća
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            console.log("✅ Uspešan login! Prebacivanje na dashboard...");
             window.location.href = "dashboard.html"; 
-        } else { alert("❌ " + data.poruka); }
-    } catch (err) { alert("⚠️ Server nije dostupan."); }
+        } else { 
+            alert("❌ " + (data.poruka || "Greška pri loginu")); 
+        }
+    } catch (err) { 
+        console.error("Greška:", err);
+        alert("⚠️ Server nije dostupan."); 
+    }
 }
 
 // --- LOGIKA: Slanje podataka za Registraciju ---
@@ -39,10 +47,18 @@ if (mainRegForm) {
             });
             const data = await response.json();
             if (response.ok) {
-                alert("✅ USPEŠNA REGISTRACIJA!\n\nSada se možeš ulogovati.");
-                otvoriLogin(); // Ova funkcija se nalazi u index.html
-            } else { alert("❌ GREŠKA: " + (data.poruka || "Problem.")); }
-        } catch (err) { alert("⚠️ Server nije dostupan."); }
+                // ✅ ISPRAVLJENO: Čuva token i user nakon registracije
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                alert("✅ USPEŠNA REGISTRACIJA!\n\nPrebaciujem te na dashboard...");
+                window.location.href = "dashboard.html"; // Direktno na dashboard umesto na login modal
+            } else { 
+                alert("❌ GREŠKA: " + (data.poruka || "Problem.")); 
+            }
+        } catch (err) { 
+            console.error("Greška:", err);
+            alert("⚠️ Server nije dostupan."); 
+        }
     });
 }
 // RUTA ZA LOGIN (Pristup sistemu)

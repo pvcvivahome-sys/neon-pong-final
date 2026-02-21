@@ -242,7 +242,11 @@
             const data = await response.json();
 
             if (response.ok) {
-                localStorage.setItem('user', JSON.stringify(data.podaci));
+                // Čuva token i korisničke podatke
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                console.log("✅ Uspešan login! Token:", data.token.substring(0, 20) + "...");
                 window.location.href = "dashboard.html"; 
             } else {
                 alert("❌ GREŠKA: " + (data.poruka || "Pogrešni podaci."));

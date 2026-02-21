@@ -205,11 +205,19 @@
 
 
 
+        // ✅ PROVERA AUTENTIFIKACIJE - Ako nema tokena, prebaci na login
+        const token = localStorage.getItem('token');
+        const userStr = localStorage.getItem('user');
 
-             // --- nepotpuna logika verovatno zalutala  iz js fajla ---
+        if (!token || !userStr) {
+            console.warn("⚠️ Nema tokena ili korisnika! Prebacujem na login...");
+            window.location.href = "login.html";
+        }
+
+        console.log("✅ Korisnik je ulogovan!");
 
         const socket = io();
-        let korisnik = JSON.parse(localStorage.getItem('user')) || { username: "GUEST", balans: 0, avatar: null };
+        let korisnik = JSON.parse(userStr) || { username: "GUEST", balans_demo: 0, balans_real: 0, avatar: null };
         let izabranaIgraFilter = null; 
 
 
