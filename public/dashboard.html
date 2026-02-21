@@ -201,9 +201,24 @@
     </div>
 
     <script>
+
+
+
+
+
+             // --- nepotpuna logika verovatno zalutala  iz js fajla ---
+
         const socket = io();
         let korisnik = JSON.parse(localStorage.getItem('user')) || { username: "GUEST", balans: 0, avatar: null };
         let izabranaIgraFilter = null; 
+
+
+
+
+
+
+
+
 
         const igreBaza = {
             skill: [
@@ -220,6 +235,13 @@
             ]
         };
 
+
+
+
+
+// --- dole  ---
+
+
         window.onload = () => {
             osveziUI();
             socket.emit('join-game', { idIgre: 'lobby', username: korisnik.username });
@@ -232,7 +254,19 @@
             if(korisnik.avatar) document.getElementById('user-photo').src = korisnik.avatar;
         }
 
-        // --- FUNKCIJE DUGMIĆA ---
+// --- gore  ---
+
+
+
+
+
+
+
+ // --- ima i iznad lista soba proveri danli dobfu zove  ---
+
+        // --- FUNKCIJE za liste skill i thinking 
+        // id ''picktherum---
+        
         function prikaziSkillListu() {
             let html = `<div style="padding:15px; background:rgba(0,0,0,0.8); display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ffd700;">
                         <span style="color:#ffd700; font-size:12px;">SKILL GAMES</span>
@@ -254,6 +288,19 @@
             });
             document.getElementById('prozorigre').innerHTML = html;
         }
+
+
+
+
+
+
+
+            // --- kreiraj sobu
+            // 1igra
+            // 2ulog
+            // sifra
+            // posalji kod prijatelju
+            // id ''kreirajsobu''  ---
 
         function otvoriModalSobe() { 
             document.getElementById('modal-kreiraj-sobu').style.display = 'flex'; 
@@ -296,7 +343,22 @@
             reader.readAsDataURL(file);
         }
 
-        // --- SOCKET LOGIKA ---
+
+
+
+
+
+
+
+
+
+
+        // --- SOCKET LOGIKA za krajnji desni prozor da se pokazu sve aktivne sobe
+        // razradi dobro pre samog testa
+        // mora id poseban ''sobenadachu''' ---
+
+
+
         socket.on('osvezi-listu-soba', (sveSobe) => {
             const lista = document.getElementById('lista-soba');
             lista.innerHTML = '';
@@ -318,6 +380,11 @@
                     </div>`;
             });
         });
+
+
+
+
+
 
         socket.on('lista-igraca', (igraci) => {
             document.getElementById('lista-igraca').innerHTML = igraci.map(i => `

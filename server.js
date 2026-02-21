@@ -6,6 +6,10 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path');
 
+// 1. SETUP: Uvoz paketa za sigurnost
+const bcrypt = require('bcryptjs'); 
+const jwt = require('jsonwebtoken');
+
 const app = express();
 const server = http.createServer(app);
 
@@ -15,65 +19,250 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // --- MONGODB ATLAS POVEZIVANJE ---
-const MONGO_URI = process.env.MONGO_URI;
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log("✅ TVRĐAVA POVEZANA NA MONGODB"))
+    .catch(err => console.error("❌ GREŠKA PRI POVEZIVANJU:", err));
 
-mongoose.connect(MONGO_URI)
-    .then(() => console.log("✅ POVEZAN NA MONGODB ATLAS"))
-    .catch(err => console.error("❌ GREŠKA PRI POVEZIVANJU NA MONGO:", err));
-
-// --- MODEL KORISNIKA ---
-const User = mongoose.model('User', new mongoose.Schema({
-    username: { type: String, unique: true, required: true },
-    password: { type: String, required: true },
+// --- BAZA: Model sa fiokama za Demo i Real ---
+const userSchema = new mongoose.Schema({
+    username: { type: String, unique: true, required: true, minlength: 3, maxlength: 30 },
+    password: { type: String, required: true }, // Kriptovana lozinka
     email: { type: String, unique: true, required: true },
     balans_real: { type: Number, default: 0 },
     balans_demo: { type: Number, default: 5000 },
-    avatar: { type: String, default: null }
-}));
+    avatar: { type: String, default: null },
+    createdAt: { type: Date, default: Date.now }
+}, { timestamps: true });
 
-// --- LISTA IGARA ---
-const igre = [
-    { id: "pong", naziv: "Neon Pong", status: "aktivna", ulog: 50 },
-    { id: "cannon", naziv: "Cannon Duel", status: "aktivna", ulog: 100 },
-    { id: "looptap", naziv: "Loop Tap", status: "aktivna", ulog: 30 },
-    { id: "iksoks", naziv: "Tic-Tac-Toe", status: "aktivna", ulog: 50 },
-    { id: "bomber", naziv: "Neon Bomber", status: "aktivna", ulog: 150 },
-    { id: "bilijar", naziv: "Pool 8", status: "aktivna", ulog: 200 }
-];
+const User = mongoose.model('User', userSchema);
 
-let gameRooms = {};
+// --- SIGURNOST: Middleware za provere (Za Web i App) ---
+const zastitiRutu = (req, res, next) => {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ status: "greška", poruka: "Pristup odbijen. Nema tokena." });
+
+    try {
+        const verifikovan = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = verifikovan;
+        next();
+    } catch (err) {
+        return res.status(401).json({ status: "greška", poruka: "Nevalidan ili istekao token." });
+    }
+};
+
+// --- VALIDACIJA: Pomoćne funkcije ---
+const validacijaImeila = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+};
+
+const validacijaLozinke = (password) => {
+    // Minimalno 6 karaktera
+    return password && password.length >= 6;
+};
+
+const validacijaKorisnickog = (username) => {
+    // Minimalno 3, maksimalno 30 karaktera, samo alfanumerika i _
+    const regex = /^[a-z0-9_]{3,30}$/i;
+    return regex.test(username);
+};
 
 // --- HTTP RUTE ---
 
+// 1. REGISTRACIJA: Sa bcrypt kriptovanjem i validacijom
 app.post('/register', async (req, res) => {
     const { username, password, email } = req.body;
+    
     try {
-        const noviKorisnik = new User({ username, password, email });
+        // Validacija ulaza
+        if (!username || !password || !email) {
+            return res.status(400).json({ status: "greška", poruka: "Svi polja su obavezna." });
+        }
+
+        if (!validacijaKorisnickog(username)) {
+            return res.status(400).json({ status: "greška", poruka: "Korisničko ime mora biti 3-30 karaktera, samo cifre i slova." });
+        }
+
+        if (!validacijaImeila(email)) {
+            return res.status(400).json({ status: "greška", poruka: "Email nije validan." });
+        }
+
+        if (!validacijaLozinke(password)) {
+            return res.status(400).json({ status: "greška", poruka: "Lozinka mora biti najmanje 6 karaktera." });
+        }
+
+        // Provera da li korisnik već postoji
+        const postoji = await User.findOne({ $or: [{ username }, { email }] });
+        if (postoji) {
+            return res.status(409).json({ status: "greška", poruka: "Korisničko ime ili email već postoji." });
+        }
+
+        // Kriptovanje lozinke
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Kreiranje novi korisnika sa Demo balansom
+        const noviKorisnik = new User({ 
+            username, 
+            password: hashedPassword, 
+            email,
+            balans_demo: 5000  // Demo nalog dobija 5000 za igranje
+        });
+
         await noviKorisnik.save();
-        console.log(`✅ Registrovan: ${username}`);
-        res.json({ status: "uspešno", poruka: "Registracija uspela!" });
+        
+        // Generisanje JWT tokena za automatski login nakon registracije
+        const token = jwt.sign({ id: noviKorisnik._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+        res.json({ 
+            status: "uspešno", 
+            poruka: "Nalog je kreiran!",
+            token,
+            user: {
+                id: noviKorisnik._id,
+                username: noviKorisnik.username,
+                email: noviKorisnik.email,
+                balans_demo: noviKorisnik.balans_demo,
+                balans_real: noviKorisnik.balans_real
+            }
+        });
     } catch (err) {
-        res.status(400).json({ status: "greška", poruka: "Korisnik već postoji!" });
+        console.error("Greška pri registraciji:", err);
+        res.status(500).json({ status: "greška", poruka: "Greška pri kreiranju naloga." });
     }
 });
 
+// 2. LOGIN: Sa JWT sistemom (Digitalni ključ) - Za Web i App
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     try {
-        const user = await User.findOne({ username, password });
-        if (!user) return res.status(401).json({ status: "greška", poruka: "Pogrešni podaci" });
-        res.json({ status: "uspešno", podaci: user });
+        // Validacija ulaza
+        if (!username || !password) {
+            return res.status(400).json({ status: "greška", poruka: "Korisničko ime i lozinka su obavezni." });
+        }
+
+        // Pronalaženje korisnika
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(401).json({ status: "greška", poruka: "Korisničko ime ili lozinka nisu tačni." });
+        }
+
+        // Upoređivanje lozinke
+        const validnaLozinka = await bcrypt.compare(password, user.password);
+        if (!validnaLozinka) {
+            return res.status(401).json({ status: "greška", poruka: "Korisničko ime ili lozinka nisu tačni." });
+        }
+
+        // Generisanje JWT tokena (Traje 7 dana - pogodan za Web i App)
+        const token = jwt.sign(
+            { id: user._id, username: user.username }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '7d' }
+        );
+
+        res.json({ 
+            status: "uspešno",
+            poruka: "Uspešna prijava!",
+            token,  // Ovaj token App/Web čuvaju i šalju sa svakim requestom
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                balans_real: user.balans_real,
+                balans_demo: user.balans_demo,
+                avatar: user.avatar
+            }
+        });
     } catch (err) {
-        res.status(500).json({ status: "greška" });
+        console.error("Greška pri loginu:", err);
+        res.status(500).json({ status: "greška", poruka: "Greška na serveru." });
     }
 });
 
-app.post('/proveri-ulaz', async (req, res) => {
-    const { username, idIgre, tipValute } = req.body;
+// 3. PROFIL: Preuzimanje podataka korisnika (Zaštićena ruta - za Web i App)
+app.get('/profile', zastitiRutu, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('-password');
+        if (!user) {
+            return res.status(404).json({ status: "greška", poruka: "Korisnik nije pronađen." });
+        }
+
+        res.json({ 
+            status: "uspešno",
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                balans_real: user.balans_real,
+                balans_demo: user.balans_demo,
+                avatar: user.avatar,
+                createdAt: user.createdAt
+            }
+        });
+    } catch (err) {
+        console.error("Greška pri učitavanju profila:", err);
+        res.status(500).json({ status: "greška", poruka: "Greška na serveru." });
+    }
+});
+
+// 4. VERIFIKACIJA TOKENA: Provera da li je token validan (Za App refresh logiku)
+app.get('/verify-token', zastitiRutu, (req, res) => {
+    res.json({ 
+        status: "uspešno", 
+        poruka: "Token je validan.",
+        user: req.user 
+    });
+});
+
+// 5. UPDATE PROFILA: Ažuriranje korisničkog profila (avatar, email, itd.)
+app.put('/profile', zastitiRutu, async (req, res) => {
+    const { email, avatar } = req.body;
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ status: "greška", poruka: "Korisnik nije pronađen." });
+        }
+
+        // Ažuriranje dozvoljenih polja
+        if (email && email !== user.email) {
+            // Provera da li email već postoji
+            const exists = await User.findOne({ email });
+            if (exists) {
+                return res.status(409).json({ status: "greška", poruka: "Email već postoji." });
+            }
+            user.email = email;
+        }
+
+        if (avatar) {
+            user.avatar = avatar;
+        }
+
+        await user.save();
+
+        res.json({ 
+            status: "uspešno",
+            poruka: "Profil je ažuriran.",
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                avatar: user.avatar
+            }
+        });
+    } catch (err) {
+        console.error("Greška pri ažuriranju profila:", err);
+        res.status(500).json({ status: "greška", poruka: "Greška na serveru." });
+    }
+});
+
+// 6. PROVERA ULAZA: Zaštićena ruta
+app.post('/proveri-ulaz', zastitiRutu, async (req, res) => {
+    const { idIgre, tipValute } = req.body;
     const polje = tipValute === 'real' ? 'balans_real' : 'balans_demo';
     
     try {
-        const user = await User.findOne({ username });
+        // req.user.id dobijamo direktno iz tokena (sigurnije je)
+        const user = await User.findById(req.user.id);
         const igra = igre.find(i => i.id === idIgre);
 
         if (user && igra && user[polje] >= igra.ulog) {
@@ -91,6 +280,7 @@ app.post('/proveri-ulaz', async (req, res) => {
 
 // --- SOCKET.IO MASTER LOGIKA ---
 const io = new Server(server, { cors: { origin: "*" } });
+const gameRooms = {}; // Čuvanje stanja svih aktivnih igara
 
 io.on('connection', (socket) => {
     console.log(`🔌 Novi korisnik: ${socket.id}`);
@@ -167,7 +357,15 @@ io.on('connection', (socket) => {
         }
     });
 });
-
+// --- LISTA IGARA ---
+const igre = [
+    { id: "pong", naziv: "Neon Pong", status: "aktivna", ulog: 50 },
+    { id: "cannon", naziv: "Cannon Duel", status: "aktivna", ulog: 100 },
+    { id: "looptap", naziv: "Loop Tap", status: "aktivna", ulog: 30 },
+    { id: "iksoks", naziv: "Tic-Tac-Toe", status: "aktivna", ulog: 50 },
+    { id: "bomber", naziv: "Neon Bomber", status: "aktivna", ulog: 150 },
+    { id: "bilijar", naziv: "Pool 8", status: "aktivna", ulog: 200 }
+];
 // Pong Engine
 function resetBallServer(room) {
     room.ball = { x: 500, y: 300, dx: Math.random() > 0.5 ? 5 : -5, dy: (Math.random() - 0.5) * 6 };

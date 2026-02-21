@@ -78,6 +78,50 @@
         }
 
         /* --- SEKCIJE --- */
+  
+
+
+        
+     .leftfollow {
+        
+        height: 100%; /* ili 100% zavisno od roditelja */
+           display: flex;
+          flex-direction: column;
+     position: fixed;
+}
+
+/* Gura ikonice na dno */
+.ikone-main {
+    border-radius: 11px;
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Ovo ih šalje na dno */
+    padding-bottom: 30px;      /* Razmak od same donje ivice ekrana */
+}
+
+/* Stil samih ikonica */
+.ikone-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    font-size: 13px;
+    color: lightgray;
+    align-items: center;   
+    padding: 9px;    
+}
+
+/* Hover efekat */
+.ikone-lista i {
+    cursor: pointer;
+    transition: color 0.3s ease; /* Glatka promena boje */
+}
+
+.ikone-lista i:hover {
+    color: #cf2626; /* Boja u koju prelaze kad pređeš mišem (npr. bela) */
+}
         .page-section {
             height: 100vh; width: 100%;
             display: flex; box-sizing: border-box;
@@ -87,14 +131,16 @@
         }
 
         /* PRVA STRANA */
-        .hero-left { width: 65%; display: flex; align-items: center; }
+        
+        .hero-left { width: 60%; display: flex; align-items: center; }
         .hero-left h1 { font-family: 'Audiowide'; font-size: 55px; text-transform: uppercase; text-shadow: 0 0 20px var(--neon-blue); }
-        .hero-right { width: 35%; display: flex; align-items: center; justify-content: center; }
+        .hero-right { width: 30%; display: flex; align-items: center; justify-content: center; }
 
         .reg-box {
             background: var(--glass); backdrop-filter: blur(20px); padding: 40px;
             border-radius: 20px; border: 1px solid var(--glass-border); width: 100%;
         }
+       
 
         /* DRUGA STRANA (DASHBOARD) */
         .dash-header { text-align: center; width: 100%; margin-top: 20px; }
@@ -184,11 +230,24 @@
             </div>
         </div>
     </nav>
-
+<div class="leftfollow">
+            <div class="ikone-main">
+                <div class="ikone-lista">
+                    <i class="fab fa-discord"></i>
+                    <i class="fab fa-instagram"></i>
+                    <i class="fab fa-telegram"></i>
+                </div>
+            </div>
+        </div>
     <div class="page-section">
+        
         <div class="hero-left">
-            <h1>Vreme je da unovčiš<br>svoje znanje!</h1>
-            <h1>mesto gde se<br>tvoje znanje placaidemo red</h1>            
+            <div class="naslov-grupa">
+            <div class="line-decorator"></div>
+        <div class="text-sadrzaj">
+            <h1>Vreme je da unovčiš<br>svoje znanje!</h1>            
+        </div>
+        </div>
         </div>
         <div class="hero-right">
             <div class="reg-box">
@@ -292,6 +351,7 @@
     </div>
 
     <script>
+
         // --- Sat ---
         function updateClock() { 
             const clockEl = document.getElementById('clock');
