@@ -115,6 +115,48 @@
         .btn-glass:hover { background: rgba(255, 215, 0, 0.2) !important; border-color: #ffd700 !important; }
 
         input[type="file"] { display: none; }
+
+        /* --- IGRICE GRID --- */
+        .igre-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .igra-card {
+            background: rgba(255, 215, 0, 0.05);
+            border: 2px solid rgba(255, 215, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .igra-card:hover {
+            background: rgba(255, 215, 0, 0.15);
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .igra-ikona {
+            font-size: 40px;
+        }
+
+        .igra-naziv {
+            font-size: 13px;
+            color: #ffd700;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -278,23 +320,50 @@
         function prikaziSkillListu() {
             let html = `<div style="padding:15px; background:rgba(0,0,0,0.8); display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ffd700;">
                         <span style="color:#ffd700; font-size:12px;">SKILL GAMES</span>
-                        <button onclick="location.reload()" class="btn-glass" style="font-size:9px !important;">NAZAD</button>
-                    </div>`;
+                        <button onclick="nazadNaGlavi()" class="btn-glass" style="font-size:9px !important;">NAZAD</button>
+                    </div>
+                    <div class="igre-grid">`;
             igreBaza.skill.forEach(igra => {
-                html += `<div onclick="setujFilterIgre('${igra.id}', '${igra.naziv}')" style="padding:15px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.05); font-size:13px;" onmouseover="this.style.background='rgba(255,215,0,0.1)'" onmouseout="this.style.background='transparent'">${igra.naziv}</div>`;
+                html += `<div class="igra-card" onclick="pokretarGru('skill', '${igra.id}', '${igra.naziv}')">
+                    <div class="igra-ikona">${igra.naziv.split(' ')[0]}</div>
+                    <div class="igra-naziv">${igra.naziv}</div>
+                    <button style="background: #ffd700; color: #000; border: none; padding: 5px 10px; border-radius: 5px; font-size: 10px; cursor: pointer;" onclick="event.stopPropagation(); otvoriModalSobeSaIgrom('${igra.id}', '${igra.naziv}')">KREIRAJ</button>
+                </div>`;
             });
+            html += `</div>`;
             document.getElementById('prozorigre').innerHTML = html;
         }
 
         function prikaziThinkingListu() {
             let html = `<div style="padding:15px; background:rgba(0,0,0,0.8); display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #00d7ff;">
                         <span style="color:#00d7ff; font-size:12px;">THINKING GAMES</span>
-                        <button onclick="location.reload()" class="btn-glass" style="font-size:9px !important;">NAZAD</button>
-                    </div>`;
+                        <button onclick="nazadNaGlavi()" class="btn-glass" style="font-size:9px !important;">NAZAD</button>
+                    </div>
+                    <div class="igre-grid">`;
             igreBaza.thinking.forEach(igra => {
-                html += `<div onclick="setujFilterIgre('${igra.id}', '${igra.naziv}')" style="padding:15px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.05); font-size:13px;" onmouseover="this.style.background='rgba(0,215,255,0.1)'" onmouseout="this.style.background='transparent'">${igra.naziv}</div>`;
+                html += `<div class="igra-card" onclick="pokretarGru('thinking', '${igra.id}', '${igra.naziv}')">
+                    <div class="igra-ikona">${igra.naziv.split(' ')[0]}</div>
+                    <div class="igra-naziv">${igra.naziv}</div>
+                    <button style="background: #00d7ff; color: #000; border: none; padding: 5px 10px; border-radius: 5px; font-size: 10px; cursor: pointer;" onclick="event.stopPropagation(); otvoriModalSobeSaIgrom('${igra.id}', '${igra.naziv}')">KREIRAJ</button>
+                </div>`;
             });
+            html += `</div>`;
             document.getElementById('prozorigre').innerHTML = html;
+        }
+
+        function pokretarGru(tip, id, naziv) {
+            setujFilterIgre(id, naziv);
+        }
+
+        function nazadNaGlavi() {
+            location.reload();
+        }
+
+        function otvoriModalSobeSaIgrom(igraId, igraNaziv) {
+            document.getElementById('modal-kreiraj-sobu').style.display = 'flex';
+            const select = document.getElementById('izbor-igre');
+            select.value = igraId;
+            document.getElementById('ulog-sobe').value = 100;
         }
 
 

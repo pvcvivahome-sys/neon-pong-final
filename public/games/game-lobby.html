@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kreiraj Meč</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #070709 0%, #1a1a2e 100%);
+            color: #fff;
+            font-family: 'Audiowide', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #ffd700;
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #ffd700;
+            margin-bottom: 30px;
+            letter-spacing: 3px;
+            font-size: 28px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            background: rgba(255, 215, 0, 0.1);
+            color: #ffd700;
+            border: 1px solid #ffd700;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Audiowide';
+            font-weight: bold;
+            transition: 0.3s;
+            letter-spacing: 1px;
+        }
+        
+        .tab-btn.active {
+            background: #ffd700;
+            color: #000;
+        }
+        
+        .tab-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'Audiowide';
+            font-size: 14px;
+            transition: 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        .slider-group {
+            margin-bottom: 20px;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: #444;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffd700;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffd700;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 14px;
+            background: #ffd700;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Audiowide';
+            font-weight: bold;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: 0.3s;
+            font-size: 12px;
+        }
+        
+        button:hover {
+            background: #ffed4e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
+        }
+        
+        button.secondary {
+            background: transparent;
+            border: 1px solid #ffd700;
+            color: #ffd700;
+        }
+        
+        button.secondary:hover {
+            background: rgba(255, 215, 0, 0.1);
+        }
+        
+        .info-box {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            color: #ffd700;
+            line-height: 1.6;
+        }
+        
+        .game-select {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .game-option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #444;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: 0.3s;
+            font-size: 12px;
+        }
+        
+        .game-option:hover {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: #ffd700;
+        }
+        
+        .game-option.selected {
+            background: #ffd700;
+            color: #000;
+            border-color: #ffd700;
+        }
+        
+        .back-btn {
+            width: 100%;
+            margin-top: 20px;
+            background: transparent !important;
+            border: 1px solid #ff4d4d !important;
+            color: #ff4d4d !important;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 77, 77, 0.1) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 KREIRAJ MEČI</h1>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('create')">+ KREIRAJ</button>
+            <button class="tab-btn" onclick="switchTab('join')">➕ UNESI KOD</button>
+        </div>
+        
+        <!-- KREIRAJ MEČI TAB -->
+        <div id="create" class="tab-content active">
+            <div class="info-box">
+                💡 Kreiraj novi meč i pozovi prijatelja da se priključi pomoću koda
+            </div>
+            
+            <div class="form-group">
+                <label>ODABERI IGRU</label>
+                <div class="game-select" id="gameSelect">
+                    <div class="game-option" onclick="selectGame('pong')" data-game="pong">🏓 Pong</div>
+                    <div class="game-option" onclick="selectGame('cannon')" data-game="cannon">🎯 Cannon</div>
+                    <div class="game-option" onclick="selectGame('sah')" data-game="sah">♟️ Šah</div>
+                    <div class="game-option" onclick="selectGame('checkers')" data-game="checkers">🔴 Damami</div>
+                    <div class="game-option" onclick="selectGame('iksoks')" data-game="iksoks">❌ Iks-oks</div>
+                    <div class="game-option" onclick="selectGame('headsoccer')" data-game="headsoccer">⚽ Head Soccer</div>
+                </div>
+            </div>
+            
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span>ULOG (Dinara)</span>
+                    <span id="ulogValue">50</span>
+                </div>
+                <input type="range" id="ulog" min="10" max="1000" value="50" step="10" oninput="updateUlog(this.value)">
+            </div>
+            
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span>POBEDS (koliko da se igra)</span>
+                    <span id="limitValue">5</span>
+                </div>
+                <input type="range" id="limit" min="1" max="20" value="5" step="1" oninput="updateLimit(this.value)">
+            </div>
+            
+            <div class="button-group">
+                <button onclick="kreirajMec()">KREIRAJ MEČI</button>
+            </div>
+        </div>
+        
+        <!-- UNESI KOD TAB -->
+        <div id="join" class="tab-content">
+            <div class="info-box">
+                💡 Tvoj prijatelj je kreirao meči? Traži kod i unesi ga ovdje
+            </div>
+            
+            <div class="form-group">
+                <label>KOD MEČIJA</label>
+                <input type="text" id="roomCode" placeholder="npr. PONG_ROOM_123" maxlength="50">
+            </div>
+            
+            <div class="form-group">
+                <label>IGRA (automatski detektovano)</label>
+                <input type="text" id="detectedGame" readonly disabled placeholder="Čeka se kod...">
+            </div>
+            
+            <div class="button-group">
+                <button onclick="udjiBezKoda()">UNESI MEČI</button>
+            </div>
+        </div>
+        
+        <button class="back-btn" onclick="window.location.href='/games'">← NAZAD NA IGRE</button>
+    </div>
+    
+    <script>
+        let selectedGame = 'pong';
+        
+        // Get current user
+        const token = localStorage.getItem('token');
+        const korisnik = JSON.parse(localStorage.getItem('user') || '{}');
+        
+        if (!token || !korisnik.username) {
+            alert('Trebate da se ulogujete!');
+            window.location.href = '/login.html';
+        }
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function selectGame(gameName) {
+            selectedGame = gameName;
+            document.querySelectorAll('.game-option').forEach(el => el.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+        
+        function updateUlog(value) {
+            document.getElementById('ulogValue').innerText = value;
+        }
+        
+        function updateLimit(value) {
+            document.getElementById('limitValue').innerText = value;
+        }
+        
+        function kreirajMec() {
+            const ulog = document.getElementById('ulog').value;
+            const limit = document.getElementById('limit').value;
+            
+            if (!selectedGame) {
+                alert('Odaberi igru!');
+                return;
+            }
+            
+            // Generate room code
+            const roomID = `${selectedGame.toUpperCase()}_${Date.now().toString(36).toUpperCase()}`;
+            
+            // Store in window for game to access
+            window.currentRoomID = roomID;
+            window.currentUlog = ulog;
+            window.currentLimit = limit;
+            window.currentGame = selectedGame;
+            
+            // Redirect to game
+            window.location.href = `/games/${selectedGame}`;
+        }
+        
+        function udjiBezKoda() {
+            const code = document.getElementById('roomCode').value.trim();
+            
+            if (!code) {
+                alert('Unesi kod mečija!');
+                return;
+            }
+            
+            // Extract game from code (format: GAME_xxx)
+            const gamePart = code.split('_')[0].toLowerCase();
+            const validGames = ['pong', 'cannon', 'sah', 'checkers', 'iksoks', 'headsoccer', 'domino', 'fourrow', 'mills', 'quoridor', 'bilijar', 'bomber', 'looptap'];
+            
+            const game = validGames.find(g => gamePart === g.toUpperCase()) || gamePart;
+            
+            // Store in window for game to access
+            window.currentRoomID = code;
+            window.currentUlog = 50; // default
+            window.currentLimit = 5; // default
+            window.currentGame = game;
+            
+            // Redirect to game
+            window.location.href = `/games/${game}`;
+        }
+        
+        // Allow Enter key to submit
+        document.getElementById('roomCode').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') udjiBezKoda();
+        });
+    </script>
+</body>
+</html>

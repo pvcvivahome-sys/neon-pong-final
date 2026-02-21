@@ -1,1 +1,66 @@
-[]
+[
+  {
+    "id": "1771652144598",
+    "username": "localtest1",
+    "password": "$2a$10$jGStPM6l5zh5mnOV0vYoWOt6YGzdMsPmGZ5kA6pjLwsRjlVKJPiRi",
+    "email": "localtest1@example.com",
+    "balans_demo": 5000,
+    "createdAt": "2026-02-21T05:35:44.600Z"
+  },
+  {
+    "id": "1771652330796",
+    "username": "demo_user_1",
+    "password": "$2a$10$CgwSIYYJWdRxazXVEP0zGOSdPeLit6V1yd/762NQlFrIGL0kAYOBK",
+    "email": "demo1@example.com",
+    "balans_demo": 5000,
+    "createdAt": "2026-02-21T05:38:50.796Z"
+  },
+  {
+    "id": "1771658111374",
+    "username": "test_user_a",
+    "password": "$2a$10$Tp1OakNF3od2spBP2AMgfuNTayOMfL0P7pl9y8MbsVop9qZwbw6Fa",
+    "email": "test_a@example.com",
+    "balans_demo": 5000,
+    "createdAt": "2026-02-21T07:15:11.374Z"
+  },
+  {
+    "id": "1771658111497",
+    "username": "test_user_b",
+    "password": "$2a$10$YTCfytInEY4pJVpo/LIuX.4kZrrQl8vROSvBYfXCt6HR506R0E5l.",
+    "email": "test_b@example.com",
+    "balans_demo": 5000,
+    "createdAt": "2026-02-21T07:15:11.497Z"
+  },
+  {
+    "id": "1771658111614",
+    "username": "test_user_c",
+    "password": "$2a$10$4jviIG4zu62t6hPjova//O7bYWlTPg6P35m2F2cs7xd6.S9geAZ0.",
+    "email": "test_c@example.com",
+    "balans_demo": 5000,
+    "createdAt": "2026-02-21T07:15:11.614Z"
+  },
+  {
+    "id": "1771697858757",
+    "username": "local_test_user",
+    "password": "$2a$10$fWM5./KI4eBvlsbzwBZPC.WKPtJVB1y9gqbU1YoE6sOFdqLqX5xRC",
+    "email": "local@test.com",
+    "balans_demo": 5000,
+    "createdAt": "2026-02-21T18:17:38.758Z"
+  },
+  {
+    "id": "1771697899879",
+    "username": "local_user_1",
+    "password": "$2a$10$P7xdqeV4ZWizdNYr3Jn58Okmdpq1YaKtOvzzZTZ08WK5pl7cOtUzu",
+    "email": "local1@test.com",
+    "balans_demo": 5000,
+    "createdAt": "2026-02-21T18:18:19.879Z"
+  },
+  {
+    "id": "1771698328489",
+    "username": "stefan_test",
+    "password": "$2a$10$rzV9ncZLCrLXMDkrHk0UxuWNZc3qr3guKpl.vlxnmWOdU9QVtD03S",
+    "email": "stefan@test.com",
+    "balans_demo": 5000,
+    "createdAt": "2026-02-21T18:25:28.489Z"
+  }
+]
